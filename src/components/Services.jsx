@@ -48,7 +48,7 @@ const ServiceCard = ({
         relative rounded-2xl overflow-hidden transition-transform duration-300 origin-center
         bg-[#38b6ff]
         scale-95 text-center
-        ${isActive ? "scale-100 shadow-xl z-10 bg-[#89c9ee]" : ""}
+        ${isActive ? "scale-100 lg:scale-105 shadow-xl z-10 bg-[#89c9ee]" : ""}
         ${isDimmed ? "scale-[0.90] opacity-80" : ""}
         w-72
       `}
@@ -101,55 +101,40 @@ const ServiceCard = ({
 const Services = () => {
   const [expandedIndex, setExpandedIndex] = useState(null);
 
-  // ====== MOBILE INFINITE CAROUSEL ======
-  // Build looped slides: [last, ...SERVICES, first]
+  /** ---------- MOBILE: Infinite loop carousel ---------- */
   const slides = [SERVICES[SERVICES.length - 1], ...SERVICES, SERVICES[0]];
   const trackRef = useRef(null);
-  const [loopIndex, setLoopIndex] = useState(1); // start on first real slide
-  const [activeRealIndex, setActiveRealIndex] = useState(0); // 0..SERVICES.length-1
+  const [loopIndex, setLoopIndex] = useState(1);
+  const [activeRealIndex, setActiveRealIndex] = useState(0);
 
-  // Helper: scroll to a loopIndex (index in `slides`)
   const scrollToLoopIndex = (idx, behavior = "smooth") => {
     const el = trackRef.current;
     if (!el) return;
-    const viewport = el.clientWidth; // each slide is 100vw of the track
+    const viewport = el.clientWidth;
     el.scrollTo({ left: idx * viewport, behavior });
   };
 
-  // Init to real first slide
   useEffect(() => {
-    // Without animation so it doesn't flash
     scrollToLoopIndex(1, "auto");
   }, []);
 
-  // Keep current slide centered on resize
   useEffect(() => {
-    const onResize = () => {
-      scrollToLoopIndex(loopIndex, "auto");
-    };
+    const onResize = () => scrollToLoopIndex(loopIndex, "auto");
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [loopIndex]);
 
-  // Handle scroll to update indices and perform jump at edges
   const onScroll = () => {
     const el = trackRef.current;
     if (!el) return;
     const viewport = el.clientWidth;
     const idx = Math.round(el.scrollLeft / viewport);
+    if (idx !== loopIndex) setLoopIndex(idx);
 
-    // If user stopped exactly on a snap point, update state
-    if (idx !== loopIndex) {
-      setLoopIndex(idx);
-    }
-
-    // Map loop index to real index
     const real =
       idx === 0 ? SERVICES.length - 1 : idx === slides.length - 1 ? 0 : idx - 1;
     setActiveRealIndex(real);
 
-    // Infinite loop jump (when we hit clones)
-    // Use a microtask to allow snap to finish before we jump without animation
     if (idx === 0) {
       queueMicrotask(() => {
         setLoopIndex(SERVICES.length);
@@ -164,29 +149,24 @@ const Services = () => {
   };
 
   const goPrev = () => {
-    const target = loopIndex - 1;
     setExpandedIndex(null);
-    scrollToLoopIndex(target);
-    setLoopIndex(target);
+    scrollToLoopIndex(loopIndex - 1);
+    setLoopIndex((i) => i - 1);
   };
 
   const goNext = () => {
-    const target = loopIndex + 1;
     setExpandedIndex(null);
-    scrollToLoopIndex(target);
-    setLoopIndex(target);
+    scrollToLoopIndex(loopIndex + 1);
+    setLoopIndex((i) => i + 1);
   };
+
+  /** ---------- DESKTOP/TABLET hover state (md+) ---------- */
+  const [hoveredIndex, setHoveredIndex] = useState(null);
 
   return (
     <section id="services" className="relative w-full py-8 bg-[#38b6ff]">
-      {/* Mobile-only header */}
-      <h2 className="md:hidden text-white text-3xl font-bold text-center mb-4">
-        Services
-      </h2>
-
-      {/* ===== MOBILE: Infinite loop carousel ===== */}
+      {/* MOBILE: Infinite loop carousel */}
       <div className="md:hidden relative">
-        {/* Track (each slide = full viewport width) */}
         <div
           ref={trackRef}
           onScroll={onScroll}
@@ -198,34 +178,25 @@ const Services = () => {
           style={{ scrollSnapType: "x mandatory" }}
         >
           {slides.map((s, idx) => {
-            // Is this slide the active real index?
             const isActive =
               (idx === 0 && activeRealIndex === SERVICES.length - 1) ||
               (idx === slides.length - 1 && activeRealIndex === 0) ||
               idx - 1 === activeRealIndex;
 
+            const realIndex = (idx - 1 + SERVICES.length) % SERVICES.length;
+
             return (
               <div
                 key={`${s.id}-clone-${idx}`}
-                className="
-                  snap-center shrink-0 w-screen
-                  flex items-start justify-center
-                  px-0
-                "
+                className="snap-center shrink-0 w-screen flex items-start justify-center"
               >
-                {/* Center the card within the full-width slide */}
                 <div className="pt-1">
                   <ServiceCard
                     {...s}
-                    expanded={
-                      expandedIndex ===
-                      (idx - 1 + SERVICES.length) % SERVICES.length
-                    }
+                    expanded={expandedIndex === realIndex}
                     setExpanded={() =>
                       setExpandedIndex((prev) =>
-                        prev === (idx - 1 + SERVICES.length) % SERVICES.length
-                          ? null
-                          : (idx - 1 + SERVICES.length) % SERVICES.length
+                        prev === realIndex ? null : realIndex
                       )
                     }
                     isActive={isActive}
@@ -254,20 +225,25 @@ const Services = () => {
         </button>
       </div>
 
-      {/* ===== DESKTOP/TABLET: original grid ===== */}
+      {/* DESKTOP/TABLET: Original grid with hover grow/highlight restored */}
       <div className="hidden md:block">
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 transition-all duration-300">
             {SERVICES.map((s, index) => (
-              <div key={s.id}>
+              <div
+                key={s.id}
+                className="transition-all duration-300"
+                onMouseEnter={() => setHoveredIndex(index)}
+                onMouseLeave={() => setHoveredIndex(null)}
+              >
                 <ServiceCard
                   {...s}
                   expanded={expandedIndex === index}
                   setExpanded={() =>
                     setExpandedIndex(expandedIndex === index ? null : index)
                   }
-                  isActive={false}
-                  isDimmed={false}
+                  isActive={hoveredIndex === index}
+                  isDimmed={hoveredIndex !== null && hoveredIndex !== index}
                 />
               </div>
             ))}
