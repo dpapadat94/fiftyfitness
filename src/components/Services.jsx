@@ -101,131 +101,110 @@ const ServiceCard = ({
 const Services = () => {
   const [expandedIndex, setExpandedIndex] = useState(null);
 
-  /** ---------- MOBILE: Infinite loop carousel ---------- */
-  const slides = [SERVICES[SERVICES.length - 1], ...SERVICES, SERVICES[0]];
+  /** ---------- MOBILE: Bounded carousel (no loop) ---------- */
   const trackRef = useRef(null);
-  const [loopIndex, setLoopIndex] = useState(1);
-  const [activeRealIndex, setActiveRealIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0); // 0 .. SERVICES.length-1
 
-  const scrollToLoopIndex = (idx, behavior = "smooth") => {
-    const el = trackRef.current;
-    if (!el) return;
-    const viewport = el.clientWidth;
-    el.scrollTo({ left: idx * viewport, behavior });
-  };
-
+  // Center current slide on resize
   useEffect(() => {
-    scrollToLoopIndex(1, "auto");
-  }, []);
-
-  useEffect(() => {
-    const onResize = () => scrollToLoopIndex(loopIndex, "auto");
+    const onResize = () => {
+      const el = trackRef.current;
+      if (!el) return;
+      el.scrollTo({ left: activeIndex * el.clientWidth, behavior: "auto" });
+    };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [loopIndex]);
+  }, [activeIndex]);
+
+  const scrollToIndex = (idx, behavior = "smooth") => {
+    const el = trackRef.current;
+    if (!el) return;
+    const clamped = Math.max(0, Math.min(SERVICES.length - 1, idx));
+    el.scrollTo({ left: clamped * el.clientWidth, behavior });
+    setActiveIndex(clamped);
+    setExpandedIndex(null);
+  };
 
   const onScroll = () => {
     const el = trackRef.current;
     if (!el) return;
-    const viewport = el.clientWidth;
-    const idx = Math.round(el.scrollLeft / viewport);
-    if (idx !== loopIndex) setLoopIndex(idx);
-
-    const real =
-      idx === 0 ? SERVICES.length - 1 : idx === slides.length - 1 ? 0 : idx - 1;
-    setActiveRealIndex(real);
-
-    if (idx === 0) {
-      queueMicrotask(() => {
-        setLoopIndex(SERVICES.length);
-        scrollToLoopIndex(SERVICES.length, "auto");
-      });
-    } else if (idx === slides.length - 1) {
-      queueMicrotask(() => {
-        setLoopIndex(1);
-        scrollToLoopIndex(1, "auto");
-      });
-    }
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    if (idx !== activeIndex) setActiveIndex(idx);
   };
 
-  const goPrev = () => {
-    setExpandedIndex(null);
-    scrollToLoopIndex(loopIndex - 1);
-    setLoopIndex((i) => i - 1);
-  };
+  const goPrev = () => scrollToIndex(activeIndex - 1);
+  const goNext = () => scrollToIndex(activeIndex + 1);
 
-  const goNext = () => {
-    setExpandedIndex(null);
-    scrollToLoopIndex(loopIndex + 1);
-    setLoopIndex((i) => i + 1);
-  };
-
-  /** ---------- DESKTOP/TABLET hover state (md+) ---------- */
+  /** ---------- DESKTOP/TABLET: hover grow/highlight ---------- */
   const [hoveredIndex, setHoveredIndex] = useState(null);
 
   return (
     <section id="services" className="relative w-full py-8 bg-[#38b6ff]">
-      {/* MOBILE: Infinite loop carousel */}
+      {/* Mobile-only header */}
+      <h2 className="md:hidden text-white text-3xl font-bold text-center mb-4">
+        Services
+      </h2>
+
+      {/* MOBILE: Bounded carousel */}
       <div className="md:hidden relative">
         <div
           ref={trackRef}
           onScroll={onScroll}
           className="
-            flex overflow-x-auto snap-x snap-mandatory scroll-smooth
+            flex overflow-x-auto w-screen
+            snap-x snap-mandatory scroll-smooth
             [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]
-            w-screen
           "
           style={{ scrollSnapType: "x mandatory" }}
         >
-          {slides.map((s, idx) => {
-            const isActive =
-              (idx === 0 && activeRealIndex === SERVICES.length - 1) ||
-              (idx === slides.length - 1 && activeRealIndex === 0) ||
-              idx - 1 === activeRealIndex;
-
-            const realIndex = (idx - 1 + SERVICES.length) % SERVICES.length;
-
-            return (
-              <div
-                key={`${s.id}-clone-${idx}`}
-                className="snap-center shrink-0 w-screen flex items-start justify-center"
-              >
-                <div className="pt-1">
-                  <ServiceCard
-                    {...s}
-                    expanded={expandedIndex === realIndex}
-                    setExpanded={() =>
-                      setExpandedIndex((prev) =>
-                        prev === realIndex ? null : realIndex
-                      )
-                    }
-                    isActive={isActive}
-                    isDimmed={false}
-                  />
-                </div>
+          {SERVICES.map((s, idx) => (
+            <div
+              key={s.id}
+              className="snap-center shrink-0 w-screen flex items-start justify-center"
+            >
+              <div className="pt-1">
+                <ServiceCard
+                  {...s}
+                  expanded={expandedIndex === idx}
+                  setExpanded={() =>
+                    setExpandedIndex((prev) => (prev === idx ? null : idx))
+                  }
+                  isActive={activeIndex === idx}
+                  isDimmed={false}
+                />
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
-        {/* Arrows */}
+        {/* Left arrow (always visible on first card but disabled) */}
         <button
           aria-label="Previous"
-          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 backdrop-blur rounded-full p-1 active:scale-95"
+          className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 rounded-full p-1 backdrop-blur
+            ${
+              activeIndex === 0
+                ? "bg-white/50 opacity-60 pointer-events-none"
+                : "bg-white/80 active:scale-95"
+            }
+          `}
           onClick={goPrev}
         >
           <ChevronLeftIcon className="w-6 h-6 text-black" />
         </button>
-        <button
-          aria-label="Next"
-          className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 backdrop-blur rounded-full p-1 active:scale-95"
-          onClick={goNext}
-        >
-          <ChevronRightIcon className="w-6 h-6 text-black" />
-        </button>
+
+        {/* Right arrow: hide on last card */}
+        {activeIndex < SERVICES.length - 1 && (
+          <button
+            aria-label="Next"
+            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 backdrop-blur rounded-full p-1 active:scale-95"
+            onClick={goNext}
+          >
+            <ChevronRightIcon className="w-6 h-6 text-black" />
+          </button>
+        )}
       </div>
 
-      {/* DESKTOP/TABLET: Original grid with hover grow/highlight restored */}
+      {/* DESKTOP/TABLET: Original grid with hover grow/highlight */}
       <div className="hidden md:block">
         <div className="mx-auto max-w-7xl px-4">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 transition-all duration-300">
