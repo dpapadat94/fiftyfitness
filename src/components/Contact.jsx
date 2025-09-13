@@ -18,9 +18,11 @@ const Contact = () => {
                   Lets Work Together!
                 </h2>
                 <p className="max-w-md leading-relaxed">
-                  "I help older men and women improve their balance, strength
-                  and endurance so they can continue to enjoy life as long as
-                  possible."
+                  "I help men and women improve strength, balance, and endurance
+                  to stay active and independent. While I specialize in
+                  supporting clients in their 50s, 60s, and beyond, my approach
+                  is adaptable for anyone looking to build lasting health and
+                  vitality."
                 </p>
               </div>
 

@@ -15,7 +15,7 @@ const SERVICES = [
     id: 2,
     title: "Small Group Classes",
     img: Group,
-    desc: "Small group personal coaching combines personalized coaching with the motivation of working out alongside friends or family. You can create your own group of 2–4 people, making it a fun and supportive way to reach your goals together. Sessions are available in 45 or 60-minute formats and tailored to the needs of your group.",
+    desc: "Small group personal coaching combines personalized coaching with the motivation of working out alongside friends or family. You can create your own group of 2–4 people, making it a fun and supportive way to reach your goals together. Sessions are available in 30, 45 or 60-minute formats and tailored to the needs of your group.",
   },
   {
     id: 3,

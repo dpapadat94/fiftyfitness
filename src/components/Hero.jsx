@@ -1,6 +1,7 @@
 import React from "react";
-import HeroImg from "../assets/bannerimg.png";
-import Logo from "../assets/logo.png"; // <-- import your logo image
+import HeroImg from "../assets/bannerimg2.png";
+import HeroSmall from "../assets/herosmall.png"; // <-- added
+import Logo from "../assets/logo.png";
 
 const SCROLL_OFFSET = 80;
 const scrollToContact = () => {
@@ -14,11 +15,16 @@ const Hero = () => {
   return (
     <section id="hero" className="relative w-full">
       <div className="relative w-full h-[60vh] md:h-[60vh]">
-        {/* Background image */}
+        {/* Background image (responsive swap) */}
+        <img
+          src={HeroSmall}
+          alt="Elderly people exercising"
+          className="absolute inset-0 w-full h-full object-cover md:hidden"
+        />
         <img
           src={HeroImg}
           alt="Elderly people exercising"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover hidden md:block"
         />
 
         {/* Overlay for readability */}
