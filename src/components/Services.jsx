@@ -17,17 +17,17 @@ const SERVICES = [
   },
   {
     id: 2,
-    title: "Small Group Classes",
-    img: Group,
-    imgMobile: GroupBlue,
-    desc: "Small group personal coaching combines personalized coaching with the motivation of working out alongside friends or family. You can create your own group of 2–4 people, making it a fun and supportive way to reach your goals together. Sessions are available in 30, 45 or 60-minute formats and tailored to the needs of your group.",
-  },
-  {
-    id: 3,
     title: "At-Home Programs",
     img: Laptop,
     imgMobile: LaptopBlue,
     desc: "Virtual personal coaching brings customized workouts and expert coaching directly to you—anytime, anywhere. Sessions are held live via video, offering real-time feedback, motivation, and accountability. Choose from 30, 45, or 60-minute options to fit your schedule and goals without compromising on quality or results.",
+  },
+  {
+    id: 3,
+    title: "Small Group Classes",
+    img: Group,
+    imgMobile: GroupBlue,
+    desc: "Small group personal coaching combines personalized coaching with the motivation of working out alongside friends or family. You can create your own group of 2–4 people, making it a fun and supportive way to reach your goals together. Sessions are available in 30, 45 or 60-minute formats and tailored to the needs of your group.",
   },
 ];
 

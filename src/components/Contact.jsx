@@ -42,6 +42,11 @@ const Contact = () => {
                       className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
                     />
                     <input
+                      type="number"
+                      placeholder="Phone Number"
+                      className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
+                    />
+                    <input
                       type="email"
                       placeholder="Email"
                       className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
@@ -96,6 +101,11 @@ const Contact = () => {
                 <input
                   type="text"
                   placeholder="Name"
+                  className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
+                />
+                <input
+                  type="number"
+                  placeholder="Phone Number"
                   className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
                 />
                 <input
