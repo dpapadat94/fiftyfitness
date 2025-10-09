@@ -1,6 +1,6 @@
 import React from "react";
 import HeroImg from "../assets/bannerimg2.png";
-import HeroSmall from "../assets/herosmall.png"; // <-- added
+import HeroSmall from "../assets/herosmall.png";
 import Logo from "../assets/logo.png";
 
 const SCROLL_OFFSET = 80;
@@ -14,7 +14,7 @@ const scrollToContact = () => {
 const Hero = () => {
   return (
     <section id="hero" className="relative w-full">
-      <div className="relative w-full h-[60vh] md:h-[60vh]">
+      <div className="relative w-full h-[90vh] md:h-[80vh]">
         {/* Background image (responsive swap) */}
         <img
           src={HeroSmall}
@@ -28,7 +28,7 @@ const Hero = () => {
         />
 
         {/* Overlay for readability */}
-        <div className="absolute inset-0 bg-black/40" />
+        <div className="absolute inset-0 bg-black/50" />
 
         {/* Content */}
         <div
@@ -36,8 +36,8 @@ const Hero = () => {
             relative z-10 h-full
             flex flex-col justify-center
             items-center text-center
-            md:items-start md:text-left md:px-16 px-6
-            max-w-3xl
+            md:items-center md:text-center md:px-16
+            px-6 max-w-3xl mx-auto
           "
         >
           {/* Logo replaces text */}
