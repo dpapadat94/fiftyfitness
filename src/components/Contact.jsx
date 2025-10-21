@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useRef, useState } from "react";
+import emailjs from "@emailjs/browser";
 import {
   PhoneIcon,
   EnvelopeIcon,
@@ -6,6 +7,78 @@ import {
 } from "@heroicons/react/24/outline";
 
 const Contact = () => {
+  const formRef = useRef();
+  const [status, setStatus] = useState({
+    loading: false,
+    success: null,
+    error: null,
+  });
+
+  const sendEmail = (e) => {
+    e.preventDefault();
+    setStatus({ loading: true, success: null, error: null });
+
+    emailjs
+      .sendForm(
+        "service_9tifj9b", // your Service ID
+        "template_x6oiohs", // your Template ID
+        formRef.current,
+        "YreErvs_ygFJh-7eb" // your Public Key
+      )
+      .then(
+        () => {
+          setStatus({
+            loading: false,
+            success: "Message sent successfully!",
+            error: null,
+          });
+          formRef.current.reset();
+        },
+        () => {
+          setStatus({
+            loading: false,
+            success: null,
+            error: "Failed to send message.",
+          });
+        }
+      );
+  };
+
+  const FormFields = () => (
+    <>
+      {/* Optional subject variable used by your template as {{title}} */}
+      <input type="hidden" name="title" value="Website Contact" />
+
+      <input
+        type="text"
+        name="name"
+        placeholder="Name"
+        className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
+        required
+      />
+      <input
+        type="tel"
+        name="phone"
+        placeholder="Phone Number"
+        className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
+        required
+      />
+      <textarea
+        rows={5}
+        name="message"
+        placeholder="Type here..."
+        className="w-full rounded-2xl bg-zinc-100 px-4 py-3 outline-none resize-none"
+        required
+      />
+    </>
+  );
+
   return (
     <section id="contact" className="bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -15,7 +88,7 @@ const Contact = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
               <div>
                 <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-                  Lets Work Together!
+                  Let’s Work Together!
                 </h2>
                 <p className="max-w-md leading-relaxed">
                   "I help men and women improve strength, balance, and endurance
@@ -26,43 +99,35 @@ const Contact = () => {
                 </p>
               </div>
 
-              {/* On small + medium screens, show the form in-flow */}
+              {/* Mobile form */}
               <div className="lg:hidden">
                 <div className="bg-white text-zinc-800 rounded-2xl shadow-xl p-6 sm:p-7 w-full mt-6">
                   <h3 className="text-lg font-semibold mb-4">
                     Schedule Your Free Assessment
                   </h3>
                   <form
-                    onSubmit={(e) => e.preventDefault()}
+                    ref={formRef}
+                    onSubmit={sendEmail}
                     className="space-y-4"
                   >
-                    <input
-                      type="text"
-                      placeholder="Name"
-                      className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
-                    />
-                    <input
-                      type="number"
-                      placeholder="Phone Number"
-                      className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
-                    />
-                    <input
-                      type="email"
-                      placeholder="Email"
-                      className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
-                    />
-                    <textarea
-                      rows={5}
-                      placeholder="Type here..."
-                      className="w-full rounded-2xl bg-zinc-100 px-4 py-3 outline-none resize-none"
-                    />
+                    <FormFields />
                     <button
                       type="submit"
-                      className="w-full rounded-full px-6 py-3 bg-[#38b6ff] text-white shadow
-                                 hover:opacity-95 active:opacity-90 transition"
+                      className="w-full rounded-full px-6 py-3 bg-[#38b6ff] text-white shadow hover:opacity-95 active:opacity-90 transition"
+                      disabled={status.loading}
                     >
-                      Submit
+                      {status.loading ? "Sending..." : "Submit"}
                     </button>
+                    {status.success && (
+                      <p className="text-green-600 text-sm mt-2">
+                        {status.success}
+                      </p>
+                    )}
+                    {status.error && (
+                      <p className="text-red-600 text-sm mt-2">
+                        {status.error}
+                      </p>
+                    )}
                   </form>
                 </div>
               </div>
@@ -70,11 +135,7 @@ const Contact = () => {
           </div>
 
           {/* Bottom white details */}
-          <div
-            className="bg-white p-6 sm:p-8 border border-zinc-100 border-t-0 rounded-b-md
-                          lg:pt-24"
-          >
-            {/* Extra top padding on lg+ so the overlapped card doesn't cover content */}
+          <div className="bg-white p-6 sm:p-8 border border-zinc-100 border-t-0 rounded-b-md lg:pt-24">
             <ul className="space-y-4">
               <li className="flex items-center gap-3 text-zinc-700">
                 <PhoneIcon className="w-5 h-5" />
@@ -91,40 +152,29 @@ const Contact = () => {
             </ul>
           </div>
 
-          {/* Overlapping form card (lg and up only) */}
+          {/* Desktop overlapping form */}
           <div className="hidden lg:block absolute lg:right-8 top-1/2 -translate-y-1/2 z-10">
             <div className="bg-white text-zinc-800 rounded-2xl shadow-2xl p-7 w-[28rem] max-w-[90vw]">
               <h3 className="text-lg font-semibold mb-4">
                 Schedule Your Free Assessment
               </h3>
-              <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
-                <input
-                  type="text"
-                  placeholder="Name"
-                  className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
-                />
-                <input
-                  type="number"
-                  placeholder="Phone Number"
-                  className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
-                />
-                <textarea
-                  rows={5}
-                  placeholder="Type here..."
-                  className="w-full rounded-2xl bg-zinc-100 px-4 py-3 outline-none resize-none"
-                />
+              <form ref={formRef} onSubmit={sendEmail} className="space-y-4">
+                <FormFields />
                 <button
                   type="submit"
-                  className="w-full rounded-full px-6 py-3 bg-[#38b6ff] text-white shadow
-                             hover:opacity-95 active:opacity-90 transition"
+                  className="w-full rounded-full px-6 py-3 bg-[#38b6ff] text-white shadow hover:opacity-95 active:opacity-90 transition"
+                  disabled={status.loading}
                 >
-                  Submit
+                  {status.loading ? "Sending..." : "Submit"}
                 </button>
+                {status.success && (
+                  <p className="text-green-600 text-sm mt-2">
+                    {status.success}
+                  </p>
+                )}
+                {status.error && (
+                  <p className="text-red-600 text-sm mt-2">{status.error}</p>
+                )}
               </form>
             </div>
           </div>
