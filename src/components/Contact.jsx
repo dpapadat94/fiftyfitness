@@ -16,14 +16,30 @@ const Contact = () => {
 
   const sendEmail = (e) => {
     e.preventDefault();
+    const form = formRef.current;
+    const name = form.name.value.trim();
+    const email = form.email.value.trim();
+    const phone = form.phone.value.trim();
+    const message = form.message.value.trim();
+
+    // ✅ Basic front-end validation
+    if (!name || !email || !phone || !message) {
+      setStatus({
+        loading: false,
+        success: null,
+        error: "Please fill in all fields before submitting.",
+      });
+      return;
+    }
+
     setStatus({ loading: true, success: null, error: null });
 
     emailjs
       .sendForm(
-        "service_9tifj9b", // your Service ID
-        "template_x6oiohs", // your Template ID
+        "service_9tifj9b",
+        "template_x6oiohs",
         formRef.current,
-        "YreErvs_ygFJh-7eb" // your Public Key
+        "YreErvs_ygFJh-7eb"
       )
       .then(
         () => {
@@ -46,7 +62,6 @@ const Contact = () => {
 
   const FormFields = () => (
     <>
-      {/* Optional subject variable used by your template as {{title}} */}
       <input type="hidden" name="title" value="Website Contact" />
 
       <input
@@ -61,6 +76,7 @@ const Contact = () => {
         name="phone"
         placeholder="Phone Number"
         className="w-full rounded-full bg-zinc-100 px-4 py-3 outline-none"
+        required
       />
       <input
         type="email"
